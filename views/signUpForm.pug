@@ -1,0 +1,30 @@
+extends layout 
+
+block content 
+
+	form(action='' method='post')
+		.form-group 
+			label(for="first-name") First name: 
+			input#first-name.form-control(type="text" name='firstName' placeholder='John' required='true' value=(firstName === undefined ? '' : firstName)) 
+		.form-group 
+			label(for="last-name") Last name: 
+			input#last-name.form-control(type="text" name='lastName' placeholder='Doe' required='true' value=(lastName === undefined ? '' : lastName)) 
+		.form-group 
+			label(for="username") Username: 
+			input#username.form-control(type="text" name='username' placeholder='JohnDoe42' required='true') 
+		.form-group 
+			label(for="password") Password: 
+			input#password.form-control(type="password" name='password' required='true') 
+		.form-group 
+			label(for="confirm-password") Confirm password: 
+			input#confirm-password.form-control(type="password" name='confirmPassword' required='true') 
+		.form-group 
+			label(for="admin-password") Admin password (optional): 
+			input#admin-password.form-control(type="password" name='adminPassword') 
+		button.btn.btn-primary(type='submit') Submit
+
+	hr
+	if errors 
+		ul 
+			each error in errors 
+				li=error.msg
