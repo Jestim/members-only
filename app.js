@@ -3,8 +3,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const config = require('dotenv').config();
 const path = require('path');
+const session = require('express-session');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const bcrypt = require('bcryptjs');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const User = require('./models/User');
 
 const indexRouter = require('./routes/index');
 
@@ -21,6 +26,65 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
+
+app.use(
+    session({
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: true,
+    })
+);
+
+passport.use(
+    new LocalStrategy((username, password, done) => {
+        User.findOne({ username: username.toLowerCase() }, (err, user) => {
+            if (err) {
+                return done(err);
+            }
+
+            if (!user) {
+                return done(null, false, { message: 'Incorrect username' });
+            }
+
+            bcrypt.compare(password, user.password, (err, result) => {
+                if (result) {
+                    console.log('Correct password');
+                    return done(null, user);
+                } else {
+                    console.log('Wrong password');
+                    return done(null, false, { message: 'Incorrect password' });
+                }
+            });
+        });
+    })
+);
+
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+    User.findById(id, (err, user) => {
+        if (err) {
+            done(err);
+        } else {
+            done(null, user);
+        }
+    });
+});
+
+app.use(passport.initialize());
+app.use(passport.session());
+app.use((req, res, next) => {
+    res.locals.currentUser = req.user;
+    next();
+});
+
+app.use((req, res, next) => {
+    console.log(`User: ${req.user}`);
+    console.log(req.session);
+    next();
+});
 
 app.use(logger('dev'));
 app.use(express.json());

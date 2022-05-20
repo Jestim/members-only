@@ -1,17 +1,16 @@
+const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
 const req = require('express/lib/request');
 const config = require('dotenv').config();
 const User = require('../models/User');
 
 exports.signUpGet = (req, res, next) => {
-    res.render('signUpForm');
+    res.render('signUpForm', {
+        title: 'Sign up',
+    });
 };
 
 exports.signUpPost = [
-    (req, res, next) => {
-        console.log(req.body);
-        next();
-    },
     // Validate and sanitize user input
     body('firstName', 'First name must not be empty!')
     .trim()
@@ -36,9 +35,15 @@ exports.signUpPost = [
     })
     .escape(),
 
-    body('password', 'Pasword must be at least 8 characters ')
+    body(
+        'password',
+        'password must contain at least 1 number, 1 uppercase letter, 1 lowercase letter, 1 special character and be at least 8 characters'
+    )
     .trim()
     .isLength({ min: 8 })
+    .matches(
+        /^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\w\d\s:])([^\s]){8,}$/gm
+    )
     .escape(),
 
     body('confirmPassword', 'Password fields does not match')
@@ -72,30 +77,28 @@ exports.signUpPost = [
         } else {
             const admin = req.body.adminPassword === process.env.ADMIN_PASSWORD;
 
-            const newUser = new User({
-                firstName: req.body.firstName,
-                lastName: req.body.lastName,
-                username: req.body.username,
-                password: req.body.password,
-                isMember: false,
-                isAdmin: admin,
-            });
-
-            newUser.save((err) => {
+            bcrypt.hash(req.body.password, 10, (err, hashedPassword) => {
                 if (err) {
-                    return next(err);
+                    next(err);
                 }
 
-                res.render('index');
+                const newUser = new User({
+                    firstName: req.body.firstName,
+                    lastName: req.body.lastName,
+                    username: req.body.username.toLowerCase(),
+                    password: hashedPassword,
+                    isMember: false,
+                    isAdmin: admin,
+                });
+
+                newUser.save((err) => {
+                    if (err) {
+                        return next(err);
+                    }
+
+                    res.render('index');
+                });
             });
         }
     },
-
-    // Check that admin password is correct
-
-    // encrypt password with passportjs
-
-    // Save user to DB
-
-    // Redirect to log in page
 ];
