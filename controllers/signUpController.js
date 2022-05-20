@@ -96,7 +96,9 @@ exports.signUpPost = [
                         return next(err);
                     }
 
-                    res.render('index');
+                    res.render('index', {
+                        title: 'Sign up successful!',
+                    });
                 });
             });
         }

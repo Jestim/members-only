@@ -8,11 +8,11 @@ const router = express.Router();
 
 /* GET home page. */
 router.get('/', (req, res, next) => {
-    res.render('index', { title: 'Members only' });
+    res.render('index', { title: 'Welcome to members only!' });
 });
 
 router.get('/home', (req, res, next) => {
-    res.render('index', { title: 'Members only' });
+    res.render('index', { title: 'Welcome to members only!' });
 });
 
 // Sign up routes

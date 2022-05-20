@@ -1,0 +1,17 @@
+extends layout 
+
+block content 
+
+	h3= title
+
+	form(action='' method='post')
+		.form-group 
+			label(for="member-password") Type in the secret member password to become member
+			input#member-password.form-control(type="password" name='memberPassword' required) 
+		button.btn.btn-primary(type='submit') Submit
+
+	hr
+	if errors 
+		ul 
+			each error in errors 
+				li=error.msg

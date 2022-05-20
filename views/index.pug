@@ -2,7 +2,11 @@ extends layout
 
 block content
   if currentUser 
-    h1 Hi #{currentUser.name}
+    h3 Hi #{currentUser.name}
+    if currentUser.isMember 
+       p You are a member!
+    else 
+      p You are not a member yet!
   else
-    h1 Welcome to members only!
+    h3= title
   p This is where the posts will go!
