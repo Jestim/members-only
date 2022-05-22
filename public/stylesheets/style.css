@@ -19,3 +19,21 @@ a {
 li {
     list-style-type: none;
 }
+
+ul {
+    padding: 0;
+}
+
+.post {
+    display: flex;
+    justify-content: space-between;
+}
+
+.post-delete-form {
+    display: flex;
+}
+
+.post-btn {
+    height: 2.5rem;
+    align-self: center;
+}

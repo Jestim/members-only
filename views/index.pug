@@ -3,10 +3,35 @@ extends layout
 block content
   if currentUser 
     h3 Hi #{currentUser.name}
-    if currentUser.isMember 
-       p You are a member!
+    if currentUser.isMember && !currentUser.isAdmin
+      p You are a member!
+    else if currentUser.isAdmin 
+      p You are an admin! 
     else 
       p You are not a member yet!
+      p Enter the secret password to become a member!
   else
     h3= title
-  p This is where the posts will go!
+    p Log in to create new posts!
+  
+  hr
+
+  if posts.length
+    ul 
+      each post in posts 
+        li.card 
+          .card-body.post
+            div.post-content
+              h4.card-title= post.message 
+              if currentUser
+                if currentUser.isMember || currentUser.isAdmin
+                  ul 
+                    li.card-text Author: #{post.author.name}
+                    li.card-test Created: #{post.timestampFormatted}
+            if currentUser
+              if currentUser.isAdmin
+                form.post-delete-form(action='/delete-post' method='post')
+                  input(type='hidden' name='postId' required value=post.id)
+                  button.btn.btn-primary.post-btn Delete
+  else 
+    li There are no posts yet

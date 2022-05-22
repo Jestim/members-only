@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 const req = require('express/lib/request');
 const config = require('dotenv').config();
 const User = require('../models/User');
+const Post = require('../models/Post');
 
 exports.signUpGet = (req, res, next) => {
     res.render('signUpForm', {
@@ -87,7 +88,7 @@ exports.signUpPost = [
                     lastName: req.body.lastName,
                     username: req.body.username.toLowerCase(),
                     password: hashedPassword,
-                    isMember: false,
+                    isMember: admin,
                     isAdmin: admin,
                 });
 
@@ -96,9 +97,18 @@ exports.signUpPost = [
                         return next(err);
                     }
 
-                    res.render('index', {
-                        title: 'Sign up successful!',
-                    });
+                    Post.find({})
+                        .populate('author')
+                        .sort({ timestamp: -1 })
+                        .exec((err, result) => {
+                            if (err) {
+                                return next(err);
+                            }
+                            res.render('index', {
+                                title: 'Sign up successful!',
+                                posts: result,
+                            });
+                        });
                 });
             });
         }
